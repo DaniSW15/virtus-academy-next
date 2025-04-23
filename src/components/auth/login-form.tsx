@@ -5,7 +5,6 @@ import { useAuth } from "@/contexts/auth-context";
 import * as Form from "@radix-ui/react-form";
 import { Button } from "@/components/ui/button";
 import { useRouter } from "next/navigation";
-import { Spinner } from "@radix-ui/themes";
 import { loginSchema, type LoginFormData } from "@/lib/validators/auth";
 import { useForm } from "@/hooks/useForm";
 import { motion } from "framer-motion";
@@ -13,6 +12,9 @@ import { IconMail, IconLock, IconEye, IconEyeOff } from "@tabler/icons-react";
 import Link from "next/link";
 import * as Checkbox from "@radix-ui/react-checkbox";
 import { IconCheck } from "@tabler/icons-react";
+import { LanguageMenu } from "./language-menu";
+import { Spinner } from "../ui/spinner/spinner";
+import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "../ui/card/card";
 
 const inputVariants = {
     focus: { scale: 1.02, transition: { type: "spring", stiffness: 300 } },
@@ -69,190 +71,177 @@ export const LoginForm = () => {
             variants={containerVariants}
             className="w-full max-w-md mx-auto"
         >
-            <div className="flex flex-col items-center mb-8">
-                <motion.div
-                    className="w-16 h-16 bg-blue-600 rounded-full flex items-center justify-center mb-4"
-                    whileHover={{ scale: 1.1, rotate: 360 }}
-                    transition={{ duration: 0.5 }}
-                >
-                    <IconMail className="w-8 h-8 text-white" />
-                </motion.div>
-                <motion.h1 
-                    variants={itemVariants}
-                    className="text-2xl font-bold text-gray-900 mb-2"
-                >
-                    Bienvenido de nuevo
-                </motion.h1>
-                <motion.p 
-                    variants={itemVariants}
-                    className="text-gray-500"
-                >
-                    Inicia sesión para continuar aprendiendo
-                </motion.p>
-            </div>
-
-            <Form.Root onSubmit={onSubmit} className="space-y-6">
-                {errors.root && (
-                    <motion.div
-                        initial={{ opacity: 0, y: -10 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        className="p-3 text-sm text-red-500 bg-red-50 border border-red-200 rounded-md"
-                    >
-                        {errors.root}
-                    </motion.div>
-                )}
-
-                <motion.div variants={itemVariants}>
-                    <Form.Field name="email">
-                        <div className="flex flex-col gap-2">
-                            <Form.Label className="text-sm font-medium text-gray-700">
-                                Email
-                            </Form.Label>
-                            <div className="relative">
-                                <IconMail className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
-                                <motion.div
-                                    variants={inputVariants}
-                                    whileFocus="focus"
-                                    whileTap="focus"
-                                >
-                                    <Form.Control asChild>
-                                        <input
-                                            type="email"
-                                            value={email}
-                                            onChange={(e) => setEmail(e.target.value)}
-                                            required
-                                            className="w-full pl-10 pr-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all"
-                                            placeholder="tu@email.com"
-                                            disabled={isLoading}
-                                        />
-                                    </Form.Control>
-                                </motion.div>
-                            </div>
-                            {errors.email && (
-                                <motion.p
-                                    initial={{ opacity: 0 }}
-                                    animate={{ opacity: 1 }}
-                                    className="text-sm text-red-500"
-                                >
-                                    {errors.email}
-                                </motion.p>
-                            )}
-                        </div>
-                    </Form.Field>
-                </motion.div>
-
-                <motion.div variants={itemVariants}>
-                    <Form.Field name="password">
-                        <div className="flex flex-col gap-2">
-                            <Form.Label className="text-sm font-medium text-gray-700">
-                                Contraseña
-                            </Form.Label>
-                            <div className="relative">
-                                <IconLock className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
-                                <motion.div
-                                    variants={inputVariants}
-                                    whileFocus="focus"
-                                    whileTap="focus"
-                                >
-                                    <Form.Control asChild>
-                                        <input
-                                            type={showPassword ? "text" : "password"}
-                                            value={password}
-                                            onChange={(e) => setPassword(e.target.value)}
-                                            required
-                                            className="w-full pl-10 pr-10 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all"
-                                            placeholder="********"
-                                            disabled={isLoading}
-                                        />
-                                    </Form.Control>
-                                </motion.div>
-                                <button
-                                    type="button"
-                                    onClick={() => setShowPassword(!showPassword)}
-                                    className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600 focus:outline-none"
-                                >
-                                    {showPassword ? (
-                                        <IconEyeOff className="w-5 h-5" />
-                                    ) : (
-                                        <IconEye className="w-5 h-5" />
-                                    )}
-                                </button>
-                            </div>
-                            {errors.password && (
-                                <motion.p
-                                    initial={{ opacity: 0 }}
-                                    animate={{ opacity: 1 }}
-                                    className="text-sm text-red-500"
-                                >
-                                    {errors.password}
-                                </motion.p>
-                            )}
-                        </div>
-                    </Form.Field>
-                </motion.div>
-
-                <motion.div variants={itemVariants} className="flex items-center justify-between">
-                    <div className="flex items-center space-x-2">
-                        <Checkbox.Root
-                            className="h-4 w-4 rounded border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 bg-white"
-                            checked={rememberMe}
-                            onCheckedChange={(checked) => setRememberMe(checked === true)}
-                            id="remember-me"
-                        >
-                            <Checkbox.Indicator>
-                                <IconCheck className="h-4 w-4 text-blue-600" />
-                            </Checkbox.Indicator>
-                        </Checkbox.Root>
-                        <label
-                            htmlFor="remember-me"
-                            className="text-sm text-gray-600 select-none cursor-pointer"
-                        >
-                            Recordarme
-                        </label>
+            <motion.h1 
+                variants={itemVariants}
+                className="text-3xl font-bold text-center text-white mb-6"
+            >
+                Virtus Academy
+            </motion.h1>
+            <Card className="w-full max-w-md">
+                <CardHeader>
+                    <div className="flex justify-between items-center">
+                        <CardTitle>Iniciar sesión</CardTitle>
+                        <LanguageMenu />
                     </div>
-                    <Link
-                        href="/auth/forgot-password"
-                        className="text-sm text-blue-600 hover:text-blue-700 transition-colors"
-                    >
-                        ¿Olvidaste tu contraseña?
-                    </Link>
-                </motion.div>
+                    <CardDescription>
+                        Ingresa tus credenciales para acceder a tu cuenta
+                    </CardDescription>
+                </CardHeader>
+                <CardContent>
+                    <Form.Root onSubmit={onSubmit} className="space-y-6">
+                        {errors.root && (
+                            <motion.div
+                                initial={{ opacity: 0, y: -10 }}
+                                animate={{ opacity: 1, y: 0 }}
+                                className="p-3 text-sm text-red-500 bg-red-50 border border-red-200 rounded-md"
+                            >
+                                {errors.root}
+                            </motion.div>
+                        )}
 
-                <motion.div 
-                    variants={itemVariants}
-                    whileHover={{ scale: 1.02 }}
-                    whileTap={{ scale: 0.98 }}
-                >
-                    <Form.Submit asChild>
-                        <Button 
-                            className="w-full bg-blue-600 hover:bg-blue-700 text-white flex items-center justify-center gap-2 h-12 text-lg font-medium rounded-md transition-all" 
-                            disabled={isLoading}
+                        <motion.div variants={itemVariants}>
+                            <Form.Field name="email">
+                                <div className="flex flex-col gap-2">
+                                    <Form.Label className="text-sm font-medium text-gray-700">
+                                        Email
+                                    </Form.Label>
+                                    <div className="relative">
+                                        <IconMail className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
+                                        <motion.div
+                                            variants={inputVariants}
+                                            whileFocus="focus"
+                                            whileTap="focus"
+                                        >
+                                            <Form.Control asChild>
+                                                <input
+                                                    type="email"
+                                                    value={email}
+                                                    onChange={(e) => setEmail(e.target.value)}
+                                                    required
+                                                    className="w-full pl-10 pr-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all"
+                                                    placeholder="tu@email.com"
+                                                    disabled={isLoading}
+                                                />
+                                            </Form.Control>
+                                        </motion.div>
+                                    </div>
+                                    {errors.email && (
+                                        <motion.p
+                                            initial={{ opacity: 0 }}
+                                            animate={{ opacity: 1 }}
+                                            className="text-sm text-red-500"
+                                        >
+                                            {errors.email}
+                                        </motion.p>
+                                    )}
+                                </div>
+                            </Form.Field>
+                        </motion.div>
+
+                        <motion.div variants={itemVariants}>
+                            <Form.Field name="password">
+                                <div className="flex flex-col gap-2">
+                                    <Form.Label className="text-sm font-medium text-gray-700">
+                                        Contraseña
+                                    </Form.Label>
+                                    <div className="relative">
+                                        <IconLock className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
+                                        <motion.div
+                                            variants={inputVariants}
+                                            whileFocus="focus"
+                                            whileTap="focus"
+                                        >
+                                            <Form.Control asChild>
+                                                <input
+                                                    type={showPassword ? "text" : "password"}
+                                                    value={password}
+                                                    onChange={(e) => setPassword(e.target.value)}
+                                                    required
+                                                    className="w-full pl-10 pr-10 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all"
+                                                    placeholder="********"
+                                                    disabled={isLoading}
+                                                />
+                                            </Form.Control>
+                                        </motion.div>
+                                        <button
+                                            type="button"
+                                            onClick={() => setShowPassword(!showPassword)}
+                                            className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600 focus:outline-none"
+                                        >
+                                            {showPassword ? (
+                                                <IconEyeOff className="w-5 h-5" />
+                                            ) : (
+                                                <IconEye className="w-5 h-5" />
+                                            )}
+                                        </button>
+                                    </div>
+                                    {errors.password && (
+                                        <motion.p
+                                            initial={{ opacity: 0 }}
+                                            animate={{ opacity: 1 }}
+                                            className="text-sm text-red-500"
+                                        >
+                                            {errors.password}
+                                        </motion.p>
+                                    )}
+                                </div>
+                            </Form.Field>
+                        </motion.div>
+
+                        <motion.div variants={itemVariants} className="flex items-center justify-between">
+                            <div className="flex items-center space-x-2">
+                                <Checkbox.Root
+                                    className="h-4 w-4 rounded border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 bg-white"
+                                    checked={rememberMe}
+                                    onCheckedChange={(checked) => setRememberMe(checked === true)}
+                                    id="remember-me"
+                                >
+                                    <Checkbox.Indicator>
+                                        <IconCheck className="h-4 w-4 text-blue-600" />
+                                    </Checkbox.Indicator>
+                                </Checkbox.Root>
+                                <label
+                                    htmlFor="remember-me"
+                                    className="text-sm text-gray-600 select-none cursor-pointer"
+                                >
+                                    Recordarme
+                                </label>
+                            </div>
+                            <Link 
+                                href="/auth/forgot-password" 
+                                className="text-sm text-blue-600 hover:text-blue-700 transition-colors"
+                            >
+                                ¿Olvidaste tu contraseña?
+                            </Link>
+                        </motion.div>
+
+                        <motion.div 
+                            variants={itemVariants}
+                            whileHover={{ scale: 1.02 }}
+                            whileTap={{ scale: 0.98 }}
                         >
-                            {isLoading ? (
-                                <>
-                                    <Spinner className="text-white" />
-                                    Iniciando sesión...
-                                </>
-                            ) : (
-                                "Iniciar sesión"
-                            )}
-                        </Button>
-                    </Form.Submit>
-                </motion.div>
-
-                <motion.div 
-                    variants={itemVariants}
-                    className="text-center text-sm text-gray-600"
-                >
-                    ¿No tienes una cuenta?{" "}
-                    <Link
-                        href="/auth/register"
-                        className="text-blue-600 hover:text-blue-700 transition-colors font-medium"
-                    >
-                        Regístrate aquí
-                    </Link>
-                </motion.div>
-            </Form.Root>
+                            <Form.Submit asChild>
+                                <Button 
+                                    className="w-full bg-blue-600 hover:bg-blue-700 text-white flex items-center justify-center gap-2 h-12 text-lg font-medium rounded-md transition-all" 
+                                    disabled={isLoading}
+                                >
+                                    <Spinner loading={isLoading}>
+                                        Iniciar sesión
+                                    </Spinner>
+                                </Button>
+                            </Form.Submit>
+                        </motion.div>
+                    </Form.Root>
+                </CardContent>
+                <CardFooter className="flex flex-col space-y-4">
+                    <div className="text-center text-sm text-gray-600">
+                        ¿No tienes una cuenta?{" "}
+                        <Link href="/auth/register" className="font-medium text-blue-600 hover:text-blue-500">
+                            Regístrate
+                        </Link>
+                    </div>
+                </CardFooter>
+            </Card>
         </motion.div>
     );
 };

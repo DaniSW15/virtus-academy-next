@@ -1,9 +1,7 @@
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import "./globals.css";
-import { AuthProvider } from "@/contexts/auth-context";
-import { Theme } from "@radix-ui/themes";
-import "@radix-ui/themes/styles.css";
+import { Providers } from "@/components/providers";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -18,13 +16,9 @@ export default function RootLayout({
     children: React.ReactNode;
 }) {
     return (
-        <html lang="es">
+        <html lang="es" suppressHydrationWarning>
             <body className={inter.className}>
-                <Theme>
-                    <AuthProvider>
-                        {children}
-                    </AuthProvider>
-                </Theme>
+                <Providers>{children}</Providers>
             </body>
         </html>
     );

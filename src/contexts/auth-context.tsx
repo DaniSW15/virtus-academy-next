@@ -12,11 +12,9 @@ interface User {
 interface AuthContextType {
     user: User | null;
     loading: boolean;
-    login: (email: string, password: string, rememberMe?: boolean) => Promise<void>;
-    register: (email: string, password: string, name: string) => Promise<void>;
+    login: (email: string, password: string) => Promise<void>;
+    register: (name: string, email: string, password: string) => Promise<void>;
     logout: () => Promise<void>;
-    verify: (code: string) => Promise<void>;
-    resendCode: () => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -26,80 +24,52 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
-        checkAuth();
+        const mockUser = {
+            id: "1",
+            name: "Usuario Prueba",
+            email: "test@test.com",
+            role: "admin"
+        };
+        setUser(mockUser);
+        setLoading(false);
     }, []);
 
-    const checkAuth = async () => {
+    const login = async (email: string, password: string) => {
         try {
-            const userData = await AuthService.getCurrentUser();
-            setUser(userData);
-            setLoading(false);
+            const mockUser = {
+                id: "1",
+                name: "Usuario Prueba",
+                email: email,
+                role: "admin"
+            };
+            setUser(mockUser);
         } catch (error) {
-            console.error("Error checking auth:", error);
-            setLoading(false);
+            console.error("Error en login:", error);
+            throw new Error("Error en la autenticación");
         }
     };
 
-    const login = async (email: string, password: string, rememberMe = false) => {
+    const register = async (name: string, email: string, password: string) => {
         try {
-            const { user: userData } = await AuthService.login(email, password, rememberMe);
-            setUser(userData);
+            const mockUser = {
+                id: "1",
+                name: name,
+                email: email,
+                role: "admin"
+            };
+            setUser(mockUser);
         } catch (error) {
-            console.error("Error logging in:", error);
-            throw error;
-        }
-    };
-
-    const register = async (email: string, password: string, name: string) => {
-        try {
-            const { user: userData } = await AuthService.register(email, password, name);
-            setUser(userData);
-        } catch (error) {
-            console.error("Error registering:", error);
-            throw error;
+            console.error("Error en registro:", error);
+            throw new Error("Error al crear la cuenta");
         }
     };
 
     const logout = async () => {
-        try {
-            await AuthService.logout();
-            setUser(null);
-        } catch (error) {
-            console.error("Error logging out:", error);
-            throw error;
-        }
-    };
-
-    const verify = async (code: string) => {
-        try {
-            await AuthService.verifyCode(code);
-        } catch (error) {
-            console.error("Error verifying code:", error);
-            throw error;
-        }
-    };
-
-    const resendCode = async () => {
-        try {
-            await AuthService.resendVerificationCode();
-        } catch (error) {
-            console.error("Error resending code:", error);
-            throw error;
-        }
+        setUser(null);
     };
 
     return (
-        <AuthContext.Provider 
-            value={{ 
-                user, 
-                loading,
-                login,
-                register,
-                logout,
-                verify,
-                resendCode
-            }}
-        >
+        <AuthContext.Provider value={{ user, loading, login, register, logout }}>
             {children}
         </AuthContext.Provider>
     );
@@ -108,7 +78,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 export function useAuth() {
     const context = useContext(AuthContext);
     if (context === undefined) {
-        throw new Error("useAuth must be used within an AuthProvider");
+        throw new Error("useAuth debe ser usado dentro de un AuthProvider");
     }
     return context;
 }

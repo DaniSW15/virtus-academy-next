@@ -1,121 +1,102 @@
 "use client";
 
-import { ProgressCard } from "@/components/dashboard/progress-card";
-import { LanguageSelector } from "@/components/dashboard/language-selector";
-import { Card, Box, Flex, Text, Heading } from "@radix-ui/themes";
-import { 
-    IconBook2, 
-    IconClock, 
-    IconTrophy,
-    IconFlame
-} from "@tabler/icons-react";
-
-const stats = [
-    {
-        label: "Lecciones completadas",
-        value: "12",
-        icon: IconBook2,
-        color: "blue",
-        trend: "+2 esta semana"
-    },
-    {
-        label: "Tiempo de estudio",
-        value: "5.2h",
-        icon: IconClock,
-        color: "green",
-        trend: "+1.5h vs semana pasada"
-    },
-    {
-        label: "Logros desbloqueados",
-        value: "8",
-        icon: IconTrophy,
-        color: "yellow",
-        trend: "+1 nuevo"
-    },
-    {
-        label: "Racha actual",
-        value: "5 días",
-        icon: IconFlame,
-        color: "red",
-        trend: "¡Mantén el ritmo!"
-    }
-];
+import { Card, CardHeader, CardContent, CardTitle } from "@/components/ui/card/card";
+import { IconBook, IconUsers, IconCash, IconChartBar } from "@tabler/icons-react";
 
 export default function DashboardPage() {
     return (
-        <Box className="space-y-6">
-            <Flex justify="between" align="center">
-                <Heading size="5">
-                    ¡Bienvenido de vuelta!
-                </Heading>
-                <LanguageSelector />
-            </Flex>
+        <div className="space-y-6">
+            <h1 className="text-2xl font-bold text-foreground">Panel de Control</h1>
 
-            <Flex gap="4" wrap="wrap">
-                {stats.map((stat, index) => (
-                    <Card key={index} style={{ flex: '1', minWidth: '240px' }}>
-                        <Flex align="center" gap="4">
-                            <Box className={`p-3 rounded-full bg-${stat.color}-100`}>
-                                <stat.icon className={`w-6 h-6 text-${stat.color}-600`} />
-                            </Box>
-                            <Box>
-                                <Text size="2" color="gray">{stat.label}</Text>
-                                <Heading size="4">{stat.value}</Heading>
-                                <Text size="2" color="gray">{stat.trend}</Text>
-                            </Box>
-                        </Flex>
-                    </Card>
-                ))}
-            </Flex>
-
-            <Flex gap="4" direction={{ initial: 'column', sm: 'row' }}>
-                <Box style={{ flex: 1 }}>
-                    <ProgressCard
-                        title="Progreso del curso"
-                        progress={65}
-                        level="Intermedio"
-                        nextMilestone="Nivel 7"
-                        xpNeeded={240}
-                    />
-                </Box>
-                
-                <Card style={{ flex: 1 }}>
-                    <Box p="4">
-                        <Heading size="4" mb="4">Próximas lecciones</Heading>
-                        <Flex direction="column" gap="3">
-                            <Card variant="surface">
-                                <Flex justify="between" align="center">
-                                    <Flex gap="3" align="center">
-                                        <IconBook2 className="w-5 h-5 text-blue-600" />
-                                        <Box>
-                                            <Text weight="medium">Verbos irregulares</Text>
-                                            <Text size="2" color="gray">Lección 7</Text>
-                                        </Box>
-                                    </Flex>
-                                    <button className="px-4 py-2 text-sm font-medium text-blue-600 hover:bg-blue-50 rounded-lg transition-colors">
-                                        Continuar
-                                    </button>
-                                </Flex>
-                            </Card>
-                            
-                            <Card variant="surface">
-                                <Flex justify="between" align="center">
-                                    <Flex gap="3" align="center">
-                                        <IconBook2 className="w-5 h-5 text-blue-600" />
-                                        <Box>
-                                            <Text weight="medium">Vocabulario de viajes</Text>
-                                            <Text size="2" color="gray">Lección 8</Text>
-                                        </Box>
-                                    </Flex>
-                                    <button className="px-4 py-2 text-sm font-medium text-blue-600 hover:bg-blue-50 rounded-lg transition-colors">
-                                        Comenzar
-                                    </button>
-                                </Flex>
-                            </Card>
-                        </Flex>
-                    </Box>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                <Card>
+                    <CardHeader>
+                        <CardTitle className="text-sm font-medium">Total Estudiantes</CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                        <div className="flex items-center gap-4">
+                            <div className="p-2 bg-primary/10 dark:bg-primary/20 rounded-lg">
+                                <IconUsers className="w-6 h-6 text-primary" />
+                            </div>
+                            <div>
+                                <p className="text-2xl font-bold text-foreground">1.4k</p>
+                                <p className="text-sm text-muted-foreground">+10% desde el mes pasado</p>
+                            </div>
+                        </div>
+                    </CardContent>
                 </Card>
-            </Flex>
-        </Box>
+
+                <Card>
+                    <CardHeader>
+                        <CardTitle className="text-sm font-medium">Cursos Activos</CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                        <div className="flex items-center gap-4">
+                            <div className="p-2 bg-primary/10 dark:bg-primary/20 rounded-lg">
+                                <IconBook className="w-6 h-6 text-primary" />
+                            </div>
+                            <div>
+                                <p className="text-2xl font-bold text-foreground">14</p>
+                                <p className="text-sm text-muted-foreground">3 nuevos esta semana</p>
+                            </div>
+                        </div>
+                    </CardContent>
+                </Card>
+
+                <Card>
+                    <CardHeader>
+                        <CardTitle className="text-sm font-medium">Ingresos Mensuales</CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                        <div className="flex items-center gap-4">
+                            <div className="p-2 bg-primary/10 dark:bg-primary/20 rounded-lg">
+                                <IconCash className="w-6 h-6 text-primary" />
+                            </div>
+                            <div>
+                                <p className="text-2xl font-bold text-foreground">$32.4k</p>
+                                <p className="text-sm text-muted-foreground">+20.1% desde el mes pasado</p>
+                            </div>
+                        </div>
+                    </CardContent>
+                </Card>
+
+                <Card>
+                    <CardHeader>
+                        <CardTitle className="text-sm font-medium">Tasa de Conversión</CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                        <div className="flex items-center gap-4">
+                            <div className="p-2 bg-primary/10 dark:bg-primary/20 rounded-lg">
+                                <IconChartBar className="w-6 h-6 text-primary" />
+                            </div>
+                            <div>
+                                <p className="text-2xl font-bold text-foreground">24.8%</p>
+                                <p className="text-sm text-muted-foreground">+4.3% desde el mes pasado</p>
+                            </div>
+                        </div>
+                    </CardContent>
+                </Card>
+            </div>
+
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                <Card>
+                    <CardHeader>
+                        <CardTitle>Últimos Estudiantes</CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                        {/* Lista de estudiantes recientes */}
+                    </CardContent>
+                </Card>
+
+                <Card>
+                    <CardHeader>
+                        <CardTitle>Actividad Reciente</CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                        {/* Timeline de actividad */}
+                    </CardContent>
+                </Card>
+            </div>
+        </div>
     );
 }
