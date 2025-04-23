@@ -1,0 +1,49 @@
+src/
+├── app/                     # Directorio principal de Next.js App Router
+│   ├── (auth)/             # Grupo de rutas de autenticación
+│   │   ├── login/
+│   │   ├── register/
+│   │   └── verify/
+│   ├── (dashboard)/        # Grupo de rutas protegidas
+│   │   ├── courses/
+│   │   ├── profile/
+│   │   └── settings/
+│   ├── layout.tsx
+│   └── page.tsx
+├── components/             # Componentes reutilizables
+│   ├── ui/                # Componentes de UI básicos
+│   │   ├── button/
+│   │   │   ├── index.tsx
+│   │   │   └── button.types.ts
+│   │   ├── input/
+│   │   ├── card/
+│   │   └── modal/
+│   ├── forms/             # Componentes de formularios
+│   │   ├── login-form/
+│   │   └── register-form/
+│   ├── layout/           # Componentes de layout
+│   │   ├── header/
+│   │   ├── footer/
+│   │   └── sidebar/
+│   └── shared/           # Componentes compartidos
+│       ├── loading/
+│       └── error/
+├── lib/                  # Utilidades y configuraciones
+│   ├── redis/           # Configuración de Redis
+│   ├── auth/            # Utilidades de autenticación
+│   └── api/             # Funciones de API
+├── hooks/               # Custom hooks
+│   ├── use-auth.ts
+│   └── use-form.ts
+├── types/               # Definiciones de tipos
+│   ├── auth.types.ts
+│   └── user.types.ts
+├── styles/             # Estilos globales y utilidades
+│   ├── globals.css
+│   └── animations.css
+├── constants/          # Constantes y configuraciones
+│   ├── routes.ts
+│   └── config.ts
+└── utils/             # Funciones utilitarias
+    ├── validation.ts
+    └── formatting.ts
