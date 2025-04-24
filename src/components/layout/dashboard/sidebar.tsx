@@ -1,5 +1,6 @@
 "use client";
 
+import { Sidebar as ProSidebar, Menu, MenuItem, SubMenu } from "react-pro-sidebar";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import {
@@ -13,31 +14,35 @@ import {
     IconMoon,
     IconSun,
     IconCode,
+    IconChevronLeft,
+    IconChevronRight,
+    IconUser,
 } from "@tabler/icons-react";
 import { useState, useEffect } from "react";
 import { useTheme } from "@/contexts/theme-context";
 
 const navigation = [
-    { name: "Overview", href: "/dashboard", icon: IconHome },
-    { name: "Transactions", href: "/dashboard/transactions", icon: IconFileDescription },
-    { name: "Loyalty Cards", href: "/dashboard/loyalty", icon: IconCash },
-    { name: "Subscriptions", href: "/dashboard/subscriptions", icon: IconSubscript },
-    { name: "Debts", href: "/dashboard/debts", icon: IconBook },
-    { name: "Legal information", href: "/dashboard/legal", icon: IconFileDescription },
-    { name: "Notifications", href: "/dashboard/notifications", icon: IconBell },
-    { name: "Setting", href: "/dashboard/settings", icon: IconSettings },
+    { name: "Vista General", href: "/dashboard", icon: IconHome },
+    { name: "Transacciones", href: "/dashboard/transactions", icon: IconFileDescription },
+    { name: "Tarjetas", href: "/dashboard/loyalty", icon: IconCash },
+    { name: "Suscripciones", href: "/dashboard/subscriptions", icon: IconSubscript },
+    { name: "Deudas", href: "/dashboard/debts", icon: IconBook },
+    { name: "Información Legal", href: "/dashboard/legal", icon: IconFileDescription },
+    { name: "Notificaciones", href: "/dashboard/notifications", icon: IconBell },
 ];
 
 export function Sidebar() {
     const pathname = usePathname();
-    const [isOpen, setIsOpen] = useState(true);
+    const [collapsed, setCollapsed] = useState(false);
     const [isMobile, setIsMobile] = useState(false);
+    const [isOpen, setIsOpen] = useState(true);
     const { theme, toggleTheme } = useTheme();
 
     useEffect(() => {
         const checkMobile = () => {
-            setIsMobile(window.innerWidth < 1300);
-            setIsOpen(window.innerWidth >= 1300);
+            const isMobileView = window.innerWidth < 1024;
+            setIsMobile(isMobileView);
+            setIsOpen(!isMobileView);
         };
 
         checkMobile();
@@ -47,134 +52,118 @@ export function Sidebar() {
 
     return (
         <>
-            {/* Botón flotante para abrir en móvil */}
+            {/* Sidebar principal */}
+            <div className={`
+                ${isMobile 
+                    ? `fixed inset-y-0 left-0 z-40 transform ${isOpen ? 'translate-x-0' : '-translate-x-full'}`
+                    : 'relative'
+                }
+                transition-transform duration-300 ease-in-out
+                min-h-screen bg-white dark:bg-gray-900 border-r border-gray-200 dark:border-gray-800
+            `}>
+                <ProSidebar
+                    collapsed={collapsed}
+                    backgroundColor="transparent"
+                    style={{ 
+                        height: '100%',
+                        border: 'none',
+                        boxShadow: isMobile ? '0 4px 12px rgba(0, 0, 0, 0.1)' : 'none',
+                        display: 'flex',
+                        flexDirection: 'column'
+                    }}
+                    rootStyles={{
+                        color: theme === 'dark' ? '#e5e7eb' : '#374151',
+                    }}
+                >
+                    <div className="p-4 flex items-center justify-between border-b border-gray-200 dark:border-gray-800">
+                        <h1 className={`text-xl font-bold text-gray-900 dark:text-white ${collapsed ? 'text-center' : ''}`}>
+                            {!collapsed ? 'Idiomas App' : 'IA'}
+                        </h1>
+                        {/* Botón de colapsar para desktop */}
+                        {!isMobile && (
+                            <button
+                                onClick={() => setCollapsed(!collapsed)}
+                                className="p-1.5 rounded-lg text-gray-500 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800"
+                            >
+                                {collapsed ? <IconChevronRight size={20} /> : <IconChevronLeft size={20} />}
+                            </button>
+                        )}
+                    </div>
+                    
+                    {/* Menú principal */}
+                    <Menu 
+                        className="flex-grow"
+                        menuItemStyles={{
+                            button: ({ level, active }) => ({
+                                backgroundColor: active ? 'var(--primary-50)' : 'transparent',
+                                color: active ? 'var(--primary-600)' : theme === 'dark' ? '#e5e7eb' : '#374151',
+                                '&:hover': {
+                                    backgroundColor: theme === 'dark' ? 'rgba(55, 65, 81, 0.5)' : 'rgba(243, 244, 246, 0.8)',
+                                    color: theme === 'dark' ? '#ffffff' : '#111827',
+                                },
+                            }),
+                        }}
+                    >
+                        {navigation.map((item) => {
+                            const Icon = item.icon;
+                            const isActive = pathname === item.href;
+                            
+                            return (
+                                <MenuItem
+                                    key={item.name}
+                                    icon={<Icon size={20} />}
+                                    component={<Link href={item.href} />}
+                                    active={isActive}
+                                >
+                                    {item.name}
+                                </MenuItem>
+                            );
+                        })}
+                    </Menu>
+
+                    {/* Footer del Sidebar */}
+                    <div className="border-t border-gray-200 dark:border-gray-800 p-4">
+                        <Menu
+                            menuItemStyles={{
+                                button: {
+                                    color: theme === 'dark' ? '#e5e7eb' : '#374151',
+                                    '&:hover': {
+                                        backgroundColor: theme === 'dark' ? 'rgba(55, 65, 81, 0.5)' : 'rgba(243, 244, 246, 0.8)',
+                                        color: theme === 'dark' ? '#ffffff' : '#111827',
+                                    },
+                                },
+                            }}
+                        >
+                            <MenuItem icon={<IconUser size={20} />}>Mi Perfil</MenuItem>
+                            <MenuItem icon={<IconSettings size={20} />}>Configuración</MenuItem>
+                            <MenuItem 
+                                icon={theme === 'dark' ? <IconSun size={20} /> : <IconMoon size={20} />}
+                                onClick={toggleTheme}
+                            >
+                                {theme === 'dark' ? 'Modo Claro' : 'Modo Oscuro'}
+                            </MenuItem>
+                        </Menu>
+                    </div>
+                </ProSidebar>
+            </div>
+
+            {/* Overlay para móvil */}
+            {isMobile && isOpen && (
+                <div 
+                    className="fixed inset-0 bg-black/50 z-30"
+                    onClick={() => setIsOpen(false)}
+                />
+            )}
+            
+            {/* Botón flotante para móvil */}
             {isMobile && !isOpen && (
                 <button
-                    className="fixed top-4 left-4 z-50 p-2 rounded-md text-gray-400 hover:bg-gray-100 bg-white dark:bg-gray-900 dark:text-gray-300 dark:hover:bg-gray-800"
                     onClick={() => setIsOpen(true)}
-                    aria-label="Abrir menú"
+                    className="fixed bottom-4 right-4 p-2 bg-primary-600 text-white rounded-full shadow-lg z-50 hover:bg-primary-700"
                 >
-                    <svg
-                        xmlns="http://www.w3.org/2000/svg"
-                        width="24"
-                        height="24"
-                        viewBox="0 0 24 24"
-                        fill="none"
-                        stroke="currentColor"
-                        strokeWidth="2"
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        className="h-6 w-6"
-                    >
-                        <path d="M3 12h18"></path>
-                        <path d="M3 6h18"></path>
-                        <path d="M3 18h18"></path>
-                    </svg>
+                    <IconCode size={24} />
                 </button>
             )}
-
-            {/* Sidebar */}
-            <aside className={`
-                fixed top-0 left-0 h-full z-50
-                transform ${isOpen ? 'translate-x-0' : '-translate-x-full'}
-                transition-all duration-300 ease-in-out
-                w-64 
-                ${!isMobile ? 'translate-x-0 static' : ''}
-                bg-white dark:bg-gray-950 text-gray-900 dark:text-white border-r border-gray-200 dark:border-gray-800
-            `}>
-                <div className="h-full flex flex-col">
-                    {/* Header del sidebar */}
-                    <div className="flex flex-col border-b border-gray-200 dark:border-gray-800">
-                        <div className="flex items-center justify-between h-16 px-4">
-                            <Link href="/dashboard" className="flex items-center gap-3">
-                                <div className="w-8 h-8 rounded-full bg-primary-100 dark:bg-gray-800 flex items-center justify-center">
-                                    <span className="text-2xl text-primary-600 dark:text-primary-400">☺</span>
-                                </div>
-                                <span className={`text-xl font-semibold text-gray-900 dark:text-white ${isMobile ? 'hidden' : 'block'}`}>
-                                    Virtus Academy
-                                </span>
-                            </Link>
-                            <button
-                                onClick={() => setIsOpen(false)}
-                                className="lg:hidden p-2 rounded-md text-gray-500 hover:bg-gray-100 dark:text-gray-400 dark:hover:bg-gray-800"
-                                aria-label="Cerrar menú"
-                            >
-                                <svg
-                                    xmlns="http://www.w3.org/2000/svg"
-                                    width="24"
-                                    height="24"
-                                    viewBox="0 0 24 24"
-                                    fill="none"
-                                    stroke="currentColor"
-                                    strokeWidth="2"
-                                    strokeLinecap="round"
-                                    strokeLinejoin="round"
-                                    className="h-6 w-6"
-                                >
-                                    <path d="M18 6L6 18"></path>
-                                    <path d="M6 6l12 12"></path>
-                                </svg>
-                            </button>
-                        </div>
-                    </div>
-
-                    {/* Navegación */}
-                    <nav className="flex-1 overflow-y-auto py-6">
-                        <div className="px-4 space-y-1">
-                            {navigation.map((item) => {
-                                const isActive = pathname === item.href;
-                                return (
-                                    <Link
-                                        key={item.name}
-                                        href={item.href}
-                                        className={`
-                                            flex items-center gap-3 px-3 py-2 rounded-lg transition-colors
-                                            ${isActive
-                                                ? 'bg-primary-50 dark:bg-gray-800 text-primary-600 dark:text-primary-400'
-                                                : 'text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-800 hover:text-primary-600 dark:hover:text-primary-400'
-                                            }
-                                        `}
-                                    >
-                                        <item.icon className="w-5 h-5" />
-                                        <span>{item.name}</span>
-                                    </Link>
-                                );
-                            })}
-                        </div>
-                    </nav>
-
-                    {/* Footer con botones de tema y código fuente */}
-                    <div className="p-4 border-t border-gray-200 dark:border-gray-800">
-                        <div className="flex items-center justify-between gap-4">
-                            <button
-                                onClick={toggleTheme}
-                                className="flex items-center gap-2 px-3 py-2 rounded-lg text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-800 hover:text-primary-600 dark:hover:text-primary-400"
-                            >
-                                {theme === 'light' ? (
-                                    <>
-                                        <IconMoon className="w-5 h-5" />
-                                        <span>Modo oscuro</span>
-                                    </>
-                                ) : (
-                                    <>
-                                        <IconSun className="w-5 h-5" />
-                                        <span>Modo claro</span>
-                                    </>
-                                )}
-                            </button>
-                            <a
-                                href="https://github.com/tu-usuario/tu-repo"
-                                target="_blank"
-                                rel="noopener noreferrer"
-                                className="flex items-center gap-2 px-3 py-2 rounded-lg text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-800 hover:text-primary-600 dark:hover:text-primary-400"
-                            >
-                                <IconCode className="w-5 h-5" />
-                                <span>Código</span>
-                            </a>
-                        </div>
-                    </div>
-                </div>
-            </aside>
         </>
     );
 }

@@ -95,9 +95,6 @@ export function Sidebar() {
                     <div className="flex flex-col border-b border-gray-800">
                         <div className="flex items-center justify-between h-16 px-4">
                             <Link href="/dashboard" className="flex items-center gap-3">
-                                <div className="w-8 h-8 rounded-full bg-white dark:bg-gray-700 flex items-center justify-center">
-                                    <span className="text-2xl text-black dark:text-white">☺</span>
-                                </div>
                                 <span className={`text-xl font-semibold ${isMobile ? 'hidden' : 'block'}`}>Virtus Academy</span>
                             </Link>
                             <button

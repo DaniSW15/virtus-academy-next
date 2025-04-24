@@ -9,11 +9,14 @@ module.exports = {
   theme: {
     extend: {
       colors: {
+        // Colores del sistema
         border: "hsl(var(--border))",
         input: "hsl(var(--input))",
         ring: "hsl(var(--ring))",
         background: "hsl(var(--background))",
         foreground: "hsl(var(--foreground))",
+
+        // Colores primarios con escala completa
         primary: {
           DEFAULT: "hsl(var(--primary))",
           foreground: "hsl(var(--primary-foreground))",
@@ -28,10 +31,24 @@ module.exports = {
           800: '#075985',
           900: '#0c4a6e',
         },
+
+        // Colores secundarios
         secondary: {
           DEFAULT: "hsl(var(--secondary))",
           foreground: "hsl(var(--secondary-foreground))",
+          50: '#f8fafc',
+          100: '#f1f5f9',
+          200: '#e2e8f0',
+          300: '#cbd5e1',
+          400: '#94a3b8',
+          500: '#64748b',
+          600: '#475569',
+          700: '#334155',
+          800: '#1e293b',
+          900: '#0f172a',
         },
+
+        // Estados y variantes
         destructive: {
           DEFAULT: "hsl(var(--destructive))",
           foreground: "hsl(var(--destructive-foreground))",
@@ -44,6 +61,8 @@ module.exports = {
           DEFAULT: "hsl(var(--accent))",
           foreground: "hsl(var(--accent-foreground))",
         },
+
+        // Componentes específicos
         popover: {
           DEFAULT: "hsl(var(--popover))",
           foreground: "hsl(var(--popover-foreground))",
@@ -52,6 +71,8 @@ module.exports = {
           DEFAULT: "hsl(var(--card))",
           foreground: "hsl(var(--card-foreground))",
         },
+
+        // Escala de grises
         gray: {
           50: '#f9fafb',
           100: '#f3f4f6',
@@ -66,6 +87,8 @@ module.exports = {
           950: '#030712',
         },
       },
+
+      // Radios de borde
       borderRadius: {
         lg: "var(--radius)",
         md: "calc(var(--radius) - 2px)",
