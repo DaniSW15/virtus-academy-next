@@ -7,14 +7,11 @@ import { Button } from "@/components/ui/button";
 import { useRouter } from "next/navigation";
 import { loginSchema, type LoginFormData } from "@/lib/validators/auth";
 import { useForm } from "@/hooks/useForm";
-import { motion } from "framer-motion";
-import { IconMail, IconLock, IconEye, IconEyeOff } from "@tabler/icons-react";
+import { motion, AnimatePresence } from "framer-motion";
+import { IconMail, IconLock, IconEye, IconEyeOff, IconX, IconCheck } from "@tabler/icons-react";
 import Link from "next/link";
-import * as Checkbox from "@radix-ui/react-checkbox";
-import { IconCheck } from "@tabler/icons-react";
-import { LanguageMenu } from "./language-menu";
+import { Card, CardContent, CardFooter } from "../ui/card/card";
 import { Spinner } from "../ui/spinner/spinner";
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "../ui/card/card";
 
 const inputVariants = {
     focus: { scale: 1.02, transition: { type: "spring", stiffness: 300 } },
@@ -33,215 +30,179 @@ const containerVariants = {
     }
 };
 
-const itemVariants = {
-    hidden: { opacity: 0, x: -20 },
-    visible: { opacity: 1, x: 0 }
-};
-
-export const LoginForm = () => {
-    const { login } = useAuth();
-    const router = useRouter();
-    const [email, setEmail] = useState("");
-    const [password, setPassword] = useState("");
+export function LoginForm() {
     const [showPassword, setShowPassword] = useState(false);
-    const [rememberMe, setRememberMe] = useState(false);
-    
-    const { errors, isLoading, handleSubmit } = useForm<LoginFormData>({
-        schema: loginSchema,
-        onSubmit: async (data) => {
-            try {
-                await login(data.email, data.password, rememberMe);
-                router.push("/dashboard");
-            } catch (error) {
-                console.error("Error en login:", error);
-                throw new Error("Credenciales inválidas");
-            }
+    const [showToast, setShowToast] = useState(false);
+    const [toastMessage, setToastMessage] = useState("");
+    const [isSuccess, setIsSuccess] = useState(false);
+    const router = useRouter();
+    const { login } = useAuth();
+
+    const { formData, handleChange, handleSubmit, errors, isSubmitting } = useForm<LoginFormData>({
+        initialValues: {
+            email: "",
+            password: ""
         },
+        validationSchema: loginSchema,
+        onSubmit: async (values) => {
+            try {
+                await login(values);
+                setIsSuccess(true);
+                setToastMessage("¡Inicio de sesión exitoso!");
+                setShowToast(true);
+                setTimeout(() => {
+                    setShowToast(false);
+                    router.push("/dashboard");
+                }, 2000);
+            } catch (error) {
+                setIsSuccess(false);
+                setToastMessage(error instanceof Error ? error.message : "Error al iniciar sesión");
+                setShowToast(true);
+                setTimeout(() => setShowToast(false), 3000);
+            }
+        }
     });
 
-    const onSubmit = (e: React.FormEvent) => {
-        e.preventDefault();
-        handleSubmit({ email, password });
-    };
-
     return (
-        <motion.div
-            initial="hidden"
-            animate="visible"
-            variants={containerVariants}
-            className="w-full max-w-md mx-auto"
-        >
-            <motion.h1 
-                variants={itemVariants}
-                className="text-3xl font-bold text-center text-white mb-6"
-            >
-                Virtus Academy
-            </motion.h1>
+        <>
             <Card className="w-full max-w-md">
-                <CardHeader>
-                    <div className="flex justify-between items-center">
-                        <CardTitle>Iniciar sesión</CardTitle>
-                        <LanguageMenu />
-                    </div>
-                    <CardDescription>
-                        Ingresa tus credenciales para acceder a tu cuenta
-                    </CardDescription>
-                </CardHeader>
-                <CardContent>
-                    <Form.Root onSubmit={onSubmit} className="space-y-6">
-                        {errors.root && (
-                            <motion.div
-                                initial={{ opacity: 0, y: -10 }}
-                                animate={{ opacity: 1, y: 0 }}
-                                className="p-3 text-sm text-red-500 bg-red-50 border border-red-200 rounded-md"
-                            >
-                                {errors.root}
-                            </motion.div>
-                        )}
-
-                        <motion.div variants={itemVariants}>
+                <CardContent className="mt-3">
+                    <Form.Root asChild>
+                        <motion.form
+                            initial="hidden"
+                            animate="visible"
+                            variants={containerVariants}
+                            onSubmit={handleSubmit}
+                            className="space-y-4"
+                        >
                             <Form.Field name="email">
-                                <div className="flex flex-col gap-2">
-                                    <Form.Label className="text-sm font-medium text-gray-700">
-                                        Email
+                                <div className="relative">
+                                    <Form.Label className="block text-sm font-medium mb-1">
+                                        Correo electrónico
                                     </Form.Label>
                                     <div className="relative">
-                                        <IconMail className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
-                                        <motion.div
+                                        <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500">
+                                            <IconMail size={20} />
+                                        </span>
+                                        <motion.input
                                             variants={inputVariants}
                                             whileFocus="focus"
-                                            whileTap="focus"
-                                        >
-                                            <Form.Control asChild>
-                                                <input
-                                                    type="email"
-                                                    value={email}
-                                                    onChange={(e) => setEmail(e.target.value)}
-                                                    required
-                                                    className="w-full pl-10 pr-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all"
-                                                    placeholder="tu@email.com"
-                                                    disabled={isLoading}
-                                                />
-                                            </Form.Control>
-                                        </motion.div>
+                                            animate="blur"
+                                            type="email"
+                                            name="email"
+                                            value={formData.email}
+                                            onChange={handleChange}
+                                            className="w-full pl-10 pr-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                                            required
+                                        />
                                     </div>
                                     {errors.email && (
-                                        <motion.p
-                                            initial={{ opacity: 0 }}
-                                            animate={{ opacity: 1 }}
-                                            className="text-sm text-red-500"
-                                        >
+                                        <Form.Message className="text-sm text-red-500 mt-1">
                                             {errors.email}
-                                        </motion.p>
+                                        </Form.Message>
                                     )}
                                 </div>
                             </Form.Field>
-                        </motion.div>
 
-                        <motion.div variants={itemVariants}>
                             <Form.Field name="password">
-                                <div className="flex flex-col gap-2">
-                                    <Form.Label className="text-sm font-medium text-gray-700">
+                                <div className="relative">
+                                    <Form.Label className="block text-sm font-medium mb-1">
                                         Contraseña
                                     </Form.Label>
                                     <div className="relative">
-                                        <IconLock className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
-                                        <motion.div
+                                        <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500">
+                                            <IconLock size={20} />
+                                        </span>
+                                        <motion.input
                                             variants={inputVariants}
                                             whileFocus="focus"
-                                            whileTap="focus"
-                                        >
-                                            <Form.Control asChild>
-                                                <input
-                                                    type={showPassword ? "text" : "password"}
-                                                    value={password}
-                                                    onChange={(e) => setPassword(e.target.value)}
-                                                    required
-                                                    className="w-full pl-10 pr-10 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all"
-                                                    placeholder="********"
-                                                    disabled={isLoading}
-                                                />
-                                            </Form.Control>
-                                        </motion.div>
+                                            animate="blur"
+                                            type={showPassword ? "text" : "password"}
+                                            name="password"
+                                            value={formData.password}
+                                            onChange={handleChange}
+                                            className="w-full pl-10 pr-12 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                                            required
+                                        />
                                         <button
                                             type="button"
                                             onClick={() => setShowPassword(!showPassword)}
-                                            className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600 focus:outline-none"
+                                            className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-700"
                                         >
-                                            {showPassword ? (
-                                                <IconEyeOff className="w-5 h-5" />
-                                            ) : (
-                                                <IconEye className="w-5 h-5" />
-                                            )}
+                                            {showPassword ? <IconEyeOff size={20} /> : <IconEye size={20} />}
                                         </button>
                                     </div>
                                     {errors.password && (
-                                        <motion.p
-                                            initial={{ opacity: 0 }}
-                                            animate={{ opacity: 1 }}
-                                            className="text-sm text-red-500"
-                                        >
+                                        <Form.Message className="text-sm text-red-500 mt-1">
                                             {errors.password}
-                                        </motion.p>
+                                        </Form.Message>
                                     )}
                                 </div>
                             </Form.Field>
-                        </motion.div>
 
-                        <motion.div variants={itemVariants} className="flex items-center justify-between">
-                            <div className="flex items-center space-x-2">
-                                <Checkbox.Root
-                                    className="h-4 w-4 rounded border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 bg-white"
-                                    checked={rememberMe}
-                                    onCheckedChange={(checked) => setRememberMe(checked === true)}
-                                    id="remember-me"
+                            <div className="flex items-center justify-end">
+                                <Link 
+                                    href="/auth/forgot-password" 
+                                    className="text-sm text-blue-600 dark:text-blue-500 hover:text-blue-700 dark:hover:text-blue-600"
                                 >
-                                    <Checkbox.Indicator>
-                                        <IconCheck className="h-4 w-4 text-blue-600" />
-                                    </Checkbox.Indicator>
-                                </Checkbox.Root>
-                                <label
-                                    htmlFor="remember-me"
-                                    className="text-sm text-gray-600 select-none cursor-pointer"
-                                >
-                                    Recordarme
-                                </label>
+                                    ¿Olvidaste tu contraseña?
+                                </Link>
                             </div>
-                            <Link 
-                                href="/auth/forgot-password" 
-                                className="text-sm text-blue-600 hover:text-blue-700 transition-colors"
-                            >
-                                ¿Olvidaste tu contraseña?
-                            </Link>
-                        </motion.div>
 
-                        <motion.div 
-                            variants={itemVariants}
-                            whileHover={{ scale: 1.02 }}
-                            whileTap={{ scale: 0.98 }}
-                        >
-                            <Form.Submit asChild>
-                                <Button 
-                                    className="w-full bg-blue-600 hover:bg-blue-700 text-white flex items-center justify-center gap-2 h-12 text-lg font-medium rounded-md transition-all" 
-                                    disabled={isLoading}
-                                >
-                                    <Spinner loading={isLoading}>
-                                        Iniciar sesión
-                                    </Spinner>
-                                </Button>
-                            </Form.Submit>
-                        </motion.div>
+                            <Button
+                                type="submit"
+                                className="w-full"
+                                disabled={isSubmitting}
+                            >
+                                {isSubmitting ? (
+                                    <Spinner className="mr-2" />
+                                ) : null}
+                                {isSubmitting ? "Iniciando sesión..." : "Iniciar sesión"}
+                            </Button>
+                        </motion.form>
                     </Form.Root>
                 </CardContent>
-                <CardFooter className="flex flex-col space-y-4">
-                    <div className="text-center text-sm text-gray-600">
+                <CardFooter className="flex justify-center">
+                    <p className="text-sm text-gray-600">
                         ¿No tienes una cuenta?{" "}
-                        <Link href="/auth/register" className="font-medium text-blue-600 hover:text-blue-500">
+                        <Link href="/auth/register" className="text-blue-600 hover:text-blue-700 font-medium">
                             Regístrate
                         </Link>
-                    </div>
+                    </p>
                 </CardFooter>
             </Card>
-        </motion.div>
+
+            <AnimatePresence>
+                {showToast && (
+                    <motion.div 
+                        className="fixed bottom-4 right-4 flex items-center gap-2 min-w-[320px] p-4 rounded-lg shadow-lg
+                            bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700"
+                        initial={{ opacity: 0, y: 50 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        exit={{ opacity: 0, y: 50 }}
+                        transition={{ duration: 0.2 }}
+                    >
+                        <div className={`flex-shrink-0 w-8 h-8 flex items-center justify-center rounded-lg ${
+                            isSuccess ? "bg-green-100 text-green-500" : "bg-red-100 text-red-500"
+                        }`}>
+                            {isSuccess ? (
+                                <IconCheck className="h-5 w-5" />
+                            ) : (
+                                <IconX className="h-5 w-5" />
+                            )}
+                        </div>
+                        <p className="flex-1 text-sm text-gray-600 dark:text-gray-300">
+                            {toastMessage}
+                        </p>
+                        <button 
+                            onClick={() => setShowToast(false)}
+                            className="flex-shrink-0 ml-4 text-gray-400 hover:text-gray-500 dark:text-gray-500 dark:hover:text-gray-400"
+                        >
+                            <IconX className="h-5 w-5" />
+                        </button>
+                    </motion.div>
+                )}
+            </AnimatePresence>
+        </>
     );
-};
+}

@@ -1,54 +1,79 @@
-// src/hooks/useForm.ts
-import { useState } from "react";
+import { useState, useCallback } from "react";
 import { z } from "zod";
 
 interface UseFormProps<T> {
-    schema: z.ZodType<T>;
-    onSubmit: (data: T) => Promise<void>;
+    initialValues: T;
+    validationSchema: z.ZodType<T>;
+    onSubmit: (values: T) => Promise<void>;
 }
 
-export function useForm<T>({ schema, onSubmit }: UseFormProps<T>) {
-    const [errors, setErrors] = useState<Record<string, string>>({});
-    const [isLoading, setIsLoading] = useState(false);
+interface UseFormReturn<T> {
+    formData: T;
+    handleChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
+    handleSubmit: (e: React.FormEvent) => void;
+    errors: Partial<Record<keyof T, string>>;
+    isSubmitting: boolean;
+    resetForm: () => void;
+}
 
-    const validate = async (data: unknown) => {
+export function useForm<T extends Record<string, any>>({
+    initialValues,
+    validationSchema,
+    onSubmit
+}: UseFormProps<T>): UseFormReturn<T> {
+    const [formData, setFormData] = useState<T>(initialValues);
+    const [errors, setErrors] = useState<Partial<Record<keyof T, string>>>({});
+    const [isSubmitting, setIsSubmitting] = useState(false);
+
+    const handleChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
+        const { name, value } = e.target;
+        setFormData(prev => ({ ...prev, [name]: value }));
+        // Limpiar error cuando el usuario empieza a escribir
+        if (errors[name as keyof T]) {
+            setErrors(prev => ({ ...prev, [name]: undefined }));
+        }
+    }, [errors]);
+
+    const handleSubmit = useCallback(async (e: React.FormEvent) => {
+        e.preventDefault();
+        setIsSubmitting(true);
+
         try {
-            await schema.parseAsync(data);
+            // Validar datos con Zod
+            const validatedData = validationSchema.parse(formData);
+            await onSubmit(validatedData);
             setErrors({});
-            return true;
         } catch (error) {
             if (error instanceof z.ZodError) {
-                const formattedErrors: Record<string, string> = {};
-                error.errors.forEach((err) => {
-                    if (err.path) {
-                        formattedErrors[err.path.join(".")] = err.message;
+                // Convertir errores de Zod a nuestro formato
+                const formattedErrors: Partial<Record<keyof T, string>> = {};
+                error.errors.forEach(err => {
+                    if (err.path.length > 0) {
+                        const field = err.path[0] as keyof T;
+                        formattedErrors[field] = err.message;
                     }
                 });
                 setErrors(formattedErrors);
+            } else {
+                // Error inesperado
+                console.error("Error en validación:", error);
             }
-            return false;
-        }
-    };
-
-    const handleSubmit = async (data: unknown) => {
-        setIsLoading(true);
-
-        try {
-            const isValid = await validate(data);
-            if (isValid) {
-                await onSubmit(data as T);
-            }
-        } catch (error) {
-            console.error("Form submission error:", error);
         } finally {
-            setIsLoading(false);
+            setIsSubmitting(false);
         }
-    };
+    }, [formData, validationSchema, onSubmit]);
+
+    const resetForm = useCallback(() => {
+        setFormData(initialValues);
+        setErrors({});
+    }, [initialValues]);
 
     return {
-        errors,
-        isLoading,
+        formData,
+        handleChange,
         handleSubmit,
-        validate,
+        errors,
+        isSubmitting,
+        resetForm
     };
 }

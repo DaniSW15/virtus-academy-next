@@ -1,19 +1,19 @@
 "use client";
 
-import { createContext, useContext, useState, useEffect } from "react";
-import AuthService from "@/lib/auth/auth-service";
+import { createContext, useContext, useState, useCallback } from "react";
+import { type RegisterFormData, type LoginFormData } from "@/lib/validators/auth";
 
 interface User {
     id: string;
-    email: string;
     name: string;
+    email: string;
 }
 
 interface AuthContextType {
     user: User | null;
-    loading: boolean;
-    login: (email: string, password: string) => Promise<void>;
-    register: (name: string, email: string, password: string) => Promise<void>;
+    isLoading: boolean;
+    login: (data: LoginFormData) => Promise<void>;
+    register: (data: RegisterFormData) => Promise<void>;
     logout: () => Promise<void>;
 }
 
@@ -21,55 +21,76 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
     const [user, setUser] = useState<User | null>(null);
-    const [loading, setLoading] = useState(true);
+    const [isLoading, setIsLoading] = useState(false);
 
-    useEffect(() => {
-        const mockUser = {
-            id: "1",
-            name: "Usuario Prueba",
-            email: "test@test.com",
-            role: "admin"
-        };
-        setUser(mockUser);
-        setLoading(false);
-    }, []);
-
-    const login = async (email: string, password: string) => {
+    const login = useCallback(async (data: LoginFormData) => {
+        setIsLoading(true);
         try {
-            const mockUser = {
+            // Aquí iría la llamada a tu API de login
+            // const response = await fetch("/api/auth/login", {
+            //     method: "POST",
+            //     headers: { "Content-Type": "application/json" },
+            //     body: JSON.stringify(data),
+            // });
+            // const user = await response.json();
+            // setUser(user);
+
+            // Por ahora simulamos un login exitoso
+            setUser({
                 id: "1",
-                name: "Usuario Prueba",
-                email: email,
-                role: "admin"
-            };
-            setUser(mockUser);
+                name: "Usuario Demo",
+                email: data.email
+            });
         } catch (error) {
             console.error("Error en login:", error);
-            throw new Error("Error en la autenticación");
+            throw new Error("Error al iniciar sesión");
+        } finally {
+            setIsLoading(false);
         }
-    };
+    }, []);
 
-    const register = async (name: string, email: string, password: string) => {
+    const register = useCallback(async (data: RegisterFormData) => {
+        setIsLoading(true);
         try {
-            const mockUser = {
+            // Aquí iría la llamada a tu API de registro
+            // const response = await fetch("/api/auth/register", {
+            //     method: "POST",
+            //     headers: { "Content-Type": "application/json" },
+            //     body: JSON.stringify(data),
+            // });
+            // const user = await response.json();
+            // setUser(user);
+
+            // Por ahora simulamos un registro exitoso
+            setUser({
                 id: "1",
-                name: name,
-                email: email,
-                role: "admin"
-            };
-            setUser(mockUser);
+                name: data.name,
+                email: data.email
+            });
         } catch (error) {
             console.error("Error en registro:", error);
             throw new Error("Error al crear la cuenta");
+        } finally {
+            setIsLoading(false);
         }
-    };
+    }, []);
 
-    const logout = async () => {
-        setUser(null);
-    };
+    const logout = useCallback(async () => {
+        setIsLoading(true);
+        try {
+            // Aquí iría la llamada a tu API de logout
+            // await fetch("/api/auth/logout");
+            setUser(null);
+        } catch (error) {
+            console.error("Error en logout:", error);
+            throw new Error("Error al cerrar sesión");
+        } finally {
+            setIsLoading(false);
+        }
+    }, []);
 
     return (
-        <AuthContext.Provider value={{ user, loading, login, register, logout }}>
+        <AuthContext.Provider value={{ user, isLoading, login, register, logout }}>
             {children}
         </AuthContext.Provider>
     );
